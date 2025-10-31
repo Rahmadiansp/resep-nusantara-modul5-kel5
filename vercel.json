@@ -1,4 +1,4 @@
 {
     "outputCommand":"npm run build",
-    "outputDirectory":"build"
+    "outputDirectory":"production"
 }
