@@ -1,5 +1,7 @@
 const USER_PROFILE_KEY = 'user_profile';
 const USER_IDENTIFIER_KEY = 'user_identifier';
+const FAVORITE_RECIPES_KEY = 'favorite_recipes';
+
 /**
  * Get or generate user identifier
  */
@@ -21,7 +23,6 @@ export const getUserProfile = () => {
     if (profile) {
       return JSON.parse(profile);
     }
-    
     // Return default profile with user identifier
     return {
       username: 'Pengguna',
@@ -44,26 +45,20 @@ export const getUserProfile = () => {
  */
 export const saveUserProfile = (profile) => {
   try {
-    const userId = getUserIdentifier();
-    const profileData = {
-      ...profile,
-      userId,
-      updatedAt: new Date().toISOString()
-    };
-    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profileData));
-    return { success: true, data: profileData };
+    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
+    return { success: true };
   } catch (error) {
     return { success: false, message: error.message };
   }
 };
 
 /**
- * Update user avatar
+ * Update avatar
  */
-export const updateAvatar = (avatarBase64) => {
+export const updateAvatar = (avatarUrl) => {
   try {
     const profile = getUserProfile();
-    profile.avatar = avatarBase64;
+    profile.avatar = avatarUrl;
     return saveUserProfile(profile);
   } catch (error) {
     return { success: false, message: error.message };
@@ -76,7 +71,7 @@ export const updateAvatar = (avatarBase64) => {
 export const updateUsername = (username) => {
   try {
     const profile = getUserProfile();
-    profile.username = username.trim() || 'Pengguna';
+    profile.username = username.trim();
     return saveUserProfile(profile);
   } catch (error) {
     return { success: false, message: error.message };
@@ -96,11 +91,40 @@ export const updateBio = (bio) => {
   }
 };
 
+// FAVORITE RECIPE FUNCTIONS
+
+export const getFavoriteRecipes = () => {
+  try {
+    const data = localStorage.getItem(FAVORITE_RECIPES_KEY);
+    if (data) return JSON.parse(data);
+    return [];
+  } catch {
+    return [];
+  }
+};
+
+export const addFavoriteRecipe = (recipeId) => {
+  const favorites = getFavoriteRecipes();
+  if (!favorites.includes(recipeId)) {
+    favorites.push(recipeId);
+    localStorage.setItem(FAVORITE_RECIPES_KEY, JSON.stringify(favorites));
+  }
+};
+
+export const removeFavoriteRecipe = (recipeId) => {
+  let favorites = getFavoriteRecipes();
+  favorites = favorites.filter(id => id !== recipeId);
+  localStorage.setItem(FAVORITE_RECIPES_KEY, JSON.stringify(favorites));
+};
+
 export default {
   getUserIdentifier,
   getUserProfile,
   saveUserProfile,
   updateAvatar,
   updateUsername,
-  updateBio
+  updateBio,
+  getFavoriteRecipes,
+  addFavoriteRecipe,
+  removeFavoriteRecipe
 };
